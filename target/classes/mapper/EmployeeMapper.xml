@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hw.dao.EmployeeDao" >
+  <resultMap id="BaseResultMap" type="com.hw.entity.Employee" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="username" property="username" jdbcType="VARCHAR" />
+    <result column="password" property="password" jdbcType="VARCHAR" />
+    <result column="nickname" property="nickname" jdbcType="VARCHAR" />
+    <result column="realname" property="realname" jdbcType="VARCHAR" />
+    <result column="jobInfoId" property="jobInfoId" jdbcType="INTEGER" />
+    <result column="departmentId" property="departmentId" jdbcType="INTEGER" />
+    <result column="phoneNo" property="phoneNo" jdbcType="VARCHAR" />
+    <result column="officeTel" property="officeTel" jdbcType="VARCHAR" />
+    <result column="workStatus" property="workStatus" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, username, password, nickname, realname, jobInfoId, departmentId, phoneNo, officeTel, 
+    workStatus
+  </sql>
+ 	<!-- 登录根据账号密码查用户 -->
+  <select id="login" resultMap="BaseResultMap" >
+    select <include refid="Base_Column_List"></include>
+    from crm_employee
+    where username = #{username} 
+    and password = #{password} and workStatus=1 
+  </select>
+  	<!-- 根据jobinforId查找员工 -->
+  <select id="empForJobId" resultMap="BaseResultMap" parameterType="INTEGER">
+  	SELECT <include refid="Base_Column_List"></include> from crm_employee
+  	WHERE jobInfoId=#{jobInfoId}
+  </select>
+<!--   查询所有员工 -->
+<select id="allEmployees" resultMap="BaseResultMap">
+	select <include refid="Base_Column_List"></include>
+    from crm_employee
+</select>
+<!-- 管理员查看本部门员工 -->
+<select id="empForDepart" resultMap="BaseResultMap" parameterType="INTEGER">
+	Select id,realname,nickname,phoneNo,officeTel from crm_employee where departmentId=#{departmentId} and id!=#{id};
+</select>
+  <insert id="addUser" parameterType="com.hw.entity.Employee">
+  INSERT INTO crm_employee (username, password, nickname, realname, jobInfoId, departmentId, phoneNo, officeTel, 
+    workStatus) VALUES(#{username},#{password},#{nickname},#{realname},#{jobInfoId},#{departmentId},#{phoneNo},#{officeTel},#{workStatus})
+  </insert>
+  <select id="checkUsername" parameterType="com.hw.entity.Employee" resultMap="BaseResultMap" >
+  SELECT <include refid="Base_Column_List" /> 
+  FROM crm_employee <where>username=#{username}</where>
+  </select>
+  <delete id="cancleUser" parameterType="com.hw.entity.Employee">
+  DELETE FROM crm_employee WHERE username=#{username}
+  </delete>
+   <update id="resetPass" parameterType="com.hw.entity.Employee">
+  	UPDATE crm_employee SET password=#{password} where username=#{username} 
+  </update>
+  <select id="queryConsulters" resultMap="BaseResultMap" >
+  SELECT <include refid="Base_Column_List"></include> FROM crm_employee WHERE jobInfoId=3;
+  </select>
+
+</mapper>

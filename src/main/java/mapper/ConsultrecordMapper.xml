@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hw.dao.ConsultRecordDao" >
+  <resultMap id="BaseResultMap" type="com.hw.entity.ConsultRecord" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customId" property="customId" jdbcType="INTEGER" />
+    <result column="consultManId" property="consultManId" jdbcType="INTEGER" />
+    <result column="consultStatus" property="consultStatus" jdbcType="INTEGER" />
+    <result column="consultDate" property="consultDate" jdbcType="DATE" />
+    <result column="result" property="result" jdbcType="VARCHAR" />
+    <result column="following" property="following" jdbcType="INTEGER" />
+    <result column="signed" property="signed" jdbcType="INTEGER" />
+    <result column="denied" property="denied" jdbcType="INTEGER" />
+    <result column="refundment" property="refundment" jdbcType="INTEGER" />
+    <result column="total" property="total" jdbcType="INTEGER" />
+    <result column="customName" property="customName" jdbcType="VARCHAR" />
+    <result column="customPhoneNo" property="customPhoneNo" jdbcType="VARCHAR" />
+    <result column="newAllot" property="newAllot" jdbcType="INTEGER" />
+  </resultMap>
+ 	<resultMap type="com.hw.entity.ConsultRecord2" id="BaseResultMap1">
+ 	<id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customId" property="customId" jdbcType="INTEGER" />
+    <result column="customName" property="customName" jdbcType="VARCHAR" />
+    <result column="customPhoneNo" property="customPhoneNo" jdbcType="VARCHAR" />
+    <result column="consultStatus" property="consultStatus" jdbcType="VARCHAR" />
+    <result column="consultDate" property="consultDate" jdbcType="DATE" />
+    <result column="result" property="result" jdbcType="VARCHAR" />
+ 	</resultMap>
+   <sql id="Base_Column_List" >
+    id, customId, consultManId, consultStatus, consultDate, result
+  </sql>
+  <select id="countConsultForDepart" resultMap="BaseResultMap" parameterType="com.hw.entity.ConsultRecord">
+  	SELECT SUM(CASE WHEN consultStatus=1 THEN 1 ELSE 0 END) AS following,
+		SUM(CASE WHEN consultStatus=2 THEN 1 ELSE 0 END) AS signed,
+		SUM(CASE WHEN consultStatus=3 THEN 1 ELSE 0 END) AS denied,
+		SUM(CASE WHEN consultStatus=4 THEN 1 ELSE 0 END) AS refundment,
+		COUNT(consultStatus) AS total
+		FROM crm_consultrecord C
+		LEFT JOIN crm_employee E ON C.consultManId=E.id
+		WHERE E.departmentId=#{departmentId};
+  </select>
+  <select id="countConsult" resultMap="BaseResultMap" parameterType="com.hw.entity.ConsultRecord">
+  		SELECT SUM(CASE WHEN consultStatus=0 THEN 1 ELSE 0 END) AS newAllot,
+  		SUM(CASE WHEN consultStatus=1 THEN 1 ELSE 0 END) AS following,
+		SUM(CASE WHEN consultStatus=2 THEN 1 ELSE 0 END) AS signed,
+		SUM(CASE WHEN consultStatus=3 THEN 1 ELSE 0 END) AS denied,
+		SUM(CASE WHEN consultStatus=4 THEN 1 ELSE 0 END) AS refundment,
+		COUNT(consultStatus) AS total
+		FROM crm_consultrecord 
+		Where DATE_FORMAT(consultDate, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' ) 
+		and consultManId=#{consultManId}
+  </select>
+  <select id="queryMonthRecord" resultMap="BaseResultMap" parameterType="com.hw.entity.ConsultRecord">
+  		SELECT r.id, r.customId, c.name as customName, c.phoneNo as customPhoneNo,r.consultStatus,r.consultDate,r.result 
+  		FROM crm_consultrecord r, crm_customer c 
+  		WHERE r.customId=c.id AND DATE_FORMAT( r.consultDate, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' ) AND r.consultManId=#{consultManId} 
+  </select>
+  <select id="queryByCustomName" resultMap="BaseResultMap" parameterType="com.hw.entity.ConsultRecord">
+  		SELECT r.id, r.customId, c.name as customName, c.phoneNo as customPhoneNo,r.consultStatus,r.consultDate,r.result 
+  		FROM crm_consultrecord r, crm_customer c 
+  		WHERE r.customId=c.id AND c.name like #{customName} 
+  		 AND r.consultManId=#{consultManId};
+  </select>
+  <select id="queryByPhone" resultMap="BaseResultMap" parameterType="com.hw.entity.ConsultRecord">
+  		SELECT r.id, r.customId, c.name as customName, c.phoneNo as customPhoneNo,r.consultStatus,r.consultDate,r.result 
+  		FROM crm_consultrecord r, crm_customer c 
+  		WHERE r.customId=c.id AND c.phoneNo like #{customPhoneNo} 
+  		 AND r.consultManId=#{consultManId};
+  </select>
+  <select id="queryByPeriod" resultMap="BaseResultMap" parameterType="com.hw.entity.ConsultRecord">
+  		SELECT r.id, r.customId, c.name as customName, c.phoneNo as customPhoneNo,r.consultStatus,r.consultDate,r.result 
+  		FROM crm_consultrecord r, crm_customer c 
+  		WHERE r.customId=c.id AND  r.consultDate BETWEEN #{consultDate} and #{endDate}
+  		 AND r.consultManId=#{consultManId};
+  </select>
+  <update id="addResult" parameterType="com.hw.entity.CustomInfo">
+  		UPDATE crm_consultrecord SET result=#{result} where id=#{id} 
+  </update>
+  <update id="updateRecord" parameterType="com.hw.entity.CustomInfo">
+  		UPDATE crm_consultrecord SET consultStatus=#{consultStatus} WHERE id=#{id}
+  </update>
+  <select id="exportConsultRecordByWeek" resultMap="BaseResultMap1" parameterType="com.hw.entity.ConsultRecord">
+  		SELECT r.id, r.customId, c.name as customName, c.phoneNo as customPhoneNo,( case r.consultStatus
+		when 0
+		then '新增'
+		when 1 then '紧跟'
+		when 2 then '已报名'
+		when 3 then '死单'
+		when 4 then '报名后退费'
+		else '错误'
+		end) as
+		consultStatus,r.consultDate,r.result 
+  		FROM crm_consultrecord r, crm_customer c 
+  		WHERE r.customId=c.id AND month(r.consultDate) = month(curdate()) and week(r.consultDate) = week(curdate())
+  		 AND r.consultManId=#{consultManId};
+  </select>
+  <select id="exportConsultRecordByMonth" resultMap="BaseResultMap1" parameterType="com.hw.entity.ConsultRecord">
+  		SELECT r.id, r.customId, c.name as customName, c.phoneNo as customPhoneNo,( case r.consultStatus
+		when 0
+		then '新增'
+		when 1 then '紧跟'
+		when 2 then '已报名'
+		when 3 then '死单'
+		when 4 then '报名后退费'
+		else '错误'
+		end) as
+		consultStatus,r.consultDate,r.result 
+  		FROM crm_consultrecord r, crm_customer c 
+  		WHERE r.customId=c.id AND DATE_FORMAT( r.consultDate, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' )
+  		AND r.consultManId=#{consultManId};
+  </select>
+  <insert id="allotToConsult" parameterType="com.hw.entity.ConsultRecord">
+  		INSERT INTO crm_consultrecord (customId, consultManId, consultStatus, consultDate, result)
+  		VALUES (#{customId}, #{consultManId}, #{consultStatus}, #{consultDate}, #{result})
+  </insert>
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hw.dao.RightsDao">
+	<resultMap id="BaseResultMap" type="com.hw.entity.Rights">
+		<id column="rid" property="rid" jdbcType="INTEGER" />
+		<result column="rightName" property="rightName" jdbcType="VARCHAR" />
+		<result column="rightType" property="rightType" jdbcType="INTEGER" />
+		<result column="url" property="url" jdbcType="VARCHAR" />
+		<result column="pId" property="pId" jdbcType="INTEGER" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		rid, rightName, rightType, url, pId
+	</sql>
+	<select id="rightsSelect" resultMap="BaseResultMap" parameterType="INTEGER">
+		select r.* from crm_rights r, crm_jobright j 
+		where r.rid=j.rightId and j.jobInfoId=#{jobInfoId};
+	</select>
+	<select id="queryAllRights" resultMap="BaseResultMap">
+		SELECT 
+		<include refid="Base_Column_List" />
+		 FROM CRM_RIGHTS
+	</select>
+	<select id="queryBypId" resultMap="BaseResultMap" parameterType="com.hw.entity.Rights">
+		SELECT 
+		<include refid="Base_Column_List" />
+		FROM CRM_RIGHTS
+		<where>
+		pId= #{pId}	
+		</where>
+	</select>
+	
+	<insert id="insertRight" parameterType="com.hw.entity.Rights">
+		INSERT INTO CRM_RIGHTS (rightName, rightType, url, pId)
+		VALUES(#{rightName},#{rightType},#{url},#{pId})			
+	</insert>
+	
+	<update id="updateRight" parameterType="com.hw.entity.Rights">
+		UPDATE CRM_RIGHTS
+		<set>
+  		<if test="rightType !=null">
+  			rightType =#{rightType},
+  		</if><if test="pId != null">
+  			pId=#{pId}
+  		</if>
+  	</set>
+  		<where>
+  			rid=#{rid}
+  		</where>
+	</update>
+	
+	<delete id="deleteRight" parameterType="com.hw.entity.Rights">
+		DELETE FROM CRM_RIGHTS 
+		<where>
+		rid = #{rid}
+		</where> 
+	</delete>
+		<select id="queryByRightName" resultMap="BaseResultMap" parameterType="com.hw.entity.Rights">
+		SELECT 
+		<include refid="Base_Column_List" />
+		 FROM CRM_RIGHTS WHERE rightName=#{rightName}
+	</select>
+</mapper>

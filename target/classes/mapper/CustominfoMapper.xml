@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hw.dao.CustominfoDao" >
+  <resultMap id="BaseResultMap" type="com.hw.entity.CustomInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customId" property="customId" jdbcType="INTEGER" />
+    <result column="followManId" property="followManId" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="startDate" property="startDate" jdbcType="DATE" />
+    <result column="lastFollowDate" property="lastFollowDate" jdbcType="DATE" />
+    <result column="planDate" property="planDate" jdbcType="DATE" />
+    <result column="mark" property="mark" jdbcType="VARCHAR" />
+    <result column="visited" property="visited" jdbcType="INTEGER" />
+    <result column="disConnect" property="disConnect" jdbcType="INTEGER" />
+    <result column="denied" property="denied" jdbcType="INTEGER" />
+    <result column="following" property="following" jdbcType="INTEGER" />
+    <result column="newAllot" property="newAllot" jdbcType="INTEGER" />
+    <result column="invalid" property="invalid" jdbcType="INTEGER" />
+    <result column="total" property="total" jdbcType="INTEGER" />
+    <result column="customName" property="customName" jdbcType="VARCHAR" />
+    <result column="customPhoneNo" property="customPhoneNo" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="BaseResultMap2" type="com.hw.entity.CustomInfo2" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customId" property="customId" jdbcType="INTEGER" />
+    <result column="customName" property="customName" jdbcType="VARCHAR" />
+    <result column="customPhoneNo" property="customPhoneNo" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="startDate" property="startDate" jdbcType="DATE" />
+    <result column="lastFollowDate" property="lastFollowDate" jdbcType="DATE" />
+    <result column="planDate" property="planDate" jdbcType="DATE" />
+    <result column="mark" property="mark" jdbcType="VARCHAR" />  
+  </resultMap>
+  <sql id="Base_Column_List">
+  id,customId,followManId,status,startDate,lastFollowDate,planDate,mark
+  </sql>
+ 	<select id="countInfoForDepart" resultMap="BaseResultMap" parameterType="com.hw.entity.CustomInfo">
+ 		SELECT SUM(CASE WHEN status=3 THEN 1 ELSE 0 END) AS visited,
+		SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) AS disConnect,
+		SUM(CASE WHEN status=4 THEN 1 ELSE 0 END) AS denied,
+		SUM(CASE WHEN status=2 THEN 1 ELSE 0 END) AS following,
+		COUNT(status) AS total
+		FROM crm_custominfo C
+		LEFT JOIN crm_employee E ON C.followManId=E.id
+		WHERE E.departmentId=#{departmentId};
+ 	</select>
+ 	<select id="countInfo" resultMap="BaseResultMap" parameterType="com.hw.entity.CustomInfo">
+ 		SELECT SUM(CASE WHEN status=0 THEN 1 ELSE 0 END) AS newAllot,
+ 		SUM(CASE WHEN status=3 THEN 1 ELSE 0 END) AS visited,
+		SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) AS disConnect,
+		SUM(CASE WHEN status=5 THEN 1 ELSE 0 END) AS invalid,
+		SUM(CASE WHEN status=4 THEN 1 ELSE 0 END) AS denied,
+		SUM(CASE WHEN status=2 THEN 1 ELSE 0 END) AS following,
+		COUNT(status) AS total
+		FROM crm_custominfo WHERE DATE_FORMAT( startDate, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' ) 
+		and followManId=#{followManId};
+ 	</select>
+ 	<select id="todayData" resultMap="BaseResultMap" parameterType="com.hw.entity.CustomInfo">
+ 		SELECT u.id,u.customId,c.name as customName,c.phoneNo as customPhoneNo,u.status,u.startDate,u.planDate,u.lastFollowDate,u.mark 
+ 		FROM crm_custominfo u, crm_customer c 
+ 		where u.customId=c.id and to_days(u.startDate) = to_days(now()) and u.followManId=#{followManId};
+ 	</select>
+ 	<select id="historyData" resultMap="BaseResultMap" parameterType="com.hw.entity.CustomInfo">
+ 		SELECT u.id,u.customId,c.name as customName,c.phoneNo as customPhoneNo,u.status,u.startDate,u.planDate,u.lastFollowDate,u.mark 
+		FROM crm_custominfo u, crm_customer c where u.customId=c.id and u.status=0 and u.followManId=#{followManId};
+ 	</select>
+ 	<select id="planToday" resultMap="BaseResultMap" parameterType="com.hw.entity.CustomInfo">
+ 		SELECT u.id,u.customId,c.name as customName,c.phoneNo as customPhoneNo,u.status,u.startDate,u.planDate,u.lastFollowDate,u.mark 
+ 		FROM crm_custominfo u, crm_customer c 
+ 		where u.customId=c.id  and to_days(u.planDate) = to_days(now()) and u.followManId=#{followManId};
+ 	</select>
+ 	<select id="monthData" resultMap="BaseResultMap" parameterType="com.hw.entity.CustomInfo">
+ 		SELECT u.id,u.customId,c.name as customName,c.phoneNo as customPhoneNo,u.status,u.startDate,u.planDate,u.lastFollowDate,u.mark 
+ 		FROM crm_custominfo u, crm_customer c 
+ 		where u.customId=c.id and DATE_FORMAT( u.startDate, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' ) and u.followManId=#{followManId};
+ 	</select>
+ 	<update id="addMark"  parameterType="com.hw.entity.CustomInfo">
+ 		UPDATE crm_custominfo SET mark=#{mark} where id=#{id}; 
+ 	</update>
+ 	<update id="updateCustomInfo" parameterType="com.hw.entity.CustomInfo">
+ 		UPDATE crm_custominfo 
+ 		SET status=#{status},planDate=#{planDate},lastFollowDate=#{lastFollowDate}
+ 		where id=#{id}
+ 	</update >
+ 	<update id="updateWithCustom" parameterType="com.hw.entity.CustomInfo">
+ 		UPDATE crm_custominfo SET status=#{status} WHERE customId=#{id}
+ 	</update>
+ 	<insert id="allotCustom" parameterType="com.hw.entity.CustomInfo">
+ 		INSERT INTO crm_custominfo (customId,followManId,status,startDate,lastFollowDate,planDate,mark)
+ 		VALUES(#{customId},#{followManId},#{status},#{startDate},#{lastFollowDate},#{planDate},#{mark})
+ 	</insert> 
+ 	<select id="exportCustomInfoByWeek" resultMap="BaseResultMap2" parameterType="com.hw.entity.CustomInfo">
+ 		SELECT u.id,u.customId,c.name as customName,c.phoneNo as customPhoneNo,( case u.status
+		when 0
+		then '未联系'
+		when 1 then '未接通'
+		when 2 then '紧跟'
+		when 3 then '已上门'
+		when 4 then '死单'
+		when 5 then '已电话无效'
+		else '错误'
+		end) as
+		status,u.startDate,u.planDate,u.lastFollowDate,u.mark 
+ 		FROM crm_custominfo u, crm_customer c 
+ 		where u.followManId=c.id and month(u.startDate) = month(curdate()) and week(u.startDate) = week(curdate())and u.followManId=#{followManId}; 
+ 	</select>
+ 	<select id="exportCustomInfoByMonth" resultMap="BaseResultMap2" parameterType="com.hw.entity.CustomInfo">
+ 		SELECT u.id,u.customId,c.name as customName,c.phoneNo as customPhoneNo,( case u.status
+		when 0
+		then '未联系'
+		when 1 then '未接通'
+		when 2 then '紧跟'
+		when 3 then '已上门'
+		when 4 then '死单'
+		when 5 then '已电话无效'
+		else '错误'
+		end) as
+		status,u.startDate,u.planDate,u.lastFollowDate,u.mark 
+ 		FROM crm_custominfo u, crm_customer c 
+ 		where u.customId=c.id and DATE_FORMAT( u.startDate, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' ) and u.followManId=#{followManId};
+ 	</select>
+</mapper>

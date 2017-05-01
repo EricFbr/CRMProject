@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration >
+  <context id="context1" >
+  	<commentGenerator>
+			<!-- 是否去除自动生成的注释 true：是 ： false:否 -->
+			<property name="suppressAllComments" value="true" />
+	</commentGenerator>
+    <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://localhost:3306/crm?characterEncoding=utf-8" userId="root" password="root" />
+    <javaModelGenerator targetPackage="com.hw.entity" targetProject="CRMProject" />
+    <sqlMapGenerator targetPackage="com.hw.mapper" targetProject="CRMProject" />
+    <javaClientGenerator targetPackage="com.hw.dao" targetProject="CRMProject" type="XMLMAPPER" />
+    <table tableName="crm_customer" ></table>
+    <table tableName="crm_consultRecord"></table>
+    <table tableName="crm_customInfo"></table>
+    <table tableName="crm_department"></table>
+    <table tableName="crm_employee"></table>
+    <table tableName="crm_jobInfo"></table>
+    <table tableName="crm_jobRight"></table>
+    <table tableName="crm_resetpass"></table>
+    <table tableName="crm_rights"></table>
+  </context>
+</generatorConfiguration>

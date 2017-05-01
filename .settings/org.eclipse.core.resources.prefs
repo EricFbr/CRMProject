@@ -1,0 +1,7 @@
+eclipse.preferences.version=1
+encoding//src/main/java/com/hw/dao/CustominfoDao.java=UTF-8
+encoding//src/main/java/com/hw/dao/JobinfoDao.java=UTF-8
+encoding//src/main/java/com/hw/dao/RightsDao.java=UTF-8
+encoding//src/main/java/com/hw/entity/ConsultRecord.java=UTF-8
+encoding//src/main/java/com/hw/entity/CustomInfo.java=UTF-8
+encoding//src/main/java/com/hw/service/CustomInfoBiz.java=UTF-8

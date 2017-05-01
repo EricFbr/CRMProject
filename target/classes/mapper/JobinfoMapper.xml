@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hw.dao.JobinfoDao" >
+  <resultMap id="BaseResultMap" type="com.hw.entity.JobInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="job" property="job" jdbcType="VARCHAR" />
+    <result column="departmentId" property="departmentId" jdbcType="INTEGER" />
+  </resultMap>
+ 
+ <sql id="Base_Column_List" >
+    id, job, departmentId
+  </sql>
+  <select id="getJobByDid" resultMap="BaseResultMap" parameterType="com.hw.entity.JobInfo">
+  	SELECT <include refid="Base_Column_List"></include> FROM crm_jobinfo 
+  	<where> departmentId=#{departmentId}</where>
+  </select>
+ <select id="queryAllJobs" resultMap="BaseResultMap" parameterType="com.hw.entity.JobInfo">
+ 	SELECT <include refid="Base_Column_List"></include> FROM crm_jobinfo
+ </select>
+ <insert id="insertJob" parameterType="com.hw.entity.JobInfo">
+ 	INSERT INTO crm_jobinfo(job, departmentId) VALUES(#{job},#{departmentId})
+ </insert>
+ <update id="updateJob" parameterType="com.hw.entity.JobInfo">
+ 	UPDATE crm_jobinfo SET departmentId=#{departmentId} WHERE id=#{id}
+ </update>
+ <delete id="deleteJob" parameterType="com.hw.entity.JobInfo">
+ 	Delete FROM crm_jobinfo where id=#{id}
+ </delete>
+ <select id="queryByJobName" resultMap="BaseResultMap" parameterType="com.hw.entity.JobInfo">
+ 	SELECT <include refid="Base_Column_List"></include> FROM crm_jobinfo WHERE job=#{job}
+ </select>
+</mapper>

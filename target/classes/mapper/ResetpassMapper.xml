@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hw.dao.ResetpassDao">
+	<resultMap id="BaseResultMap" type="com.hw.entity.ResetPass">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
+		<result column="phoneNo" property="phoneNo" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, username, phoneNo
+	</sql>
+	<insert id="reqResetPass" parameterType="com.hw.entity.ResetPass">
+		INSERT INTO crm_resetpass (username, phoneNo)
+		VALUES(#{username},#{phoneNo})
+	</insert>
+	<select id="querRestRequest" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List"></include>
+		FROM crm_resetpass
+	</select>
+	<delete id="deleRestRequest" parameterType="com.hw.entity.ResetPass">
+		DELETE FROM crm_resetpass where username=#{username}
+	</delete>
+</mapper>

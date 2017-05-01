@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hw.dao.CustomerDao" >
+  <resultMap id="BaseResultMap" type="com.hw.entity.Customer" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="education" property="education" jdbcType="VARCHAR" />
+    <result column="phoneNo" property="phoneNo" jdbcType="VARCHAR" />
+    <result column="qq" property="qq" jdbcType="INTEGER" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="customStatus" property="customStatus" jdbcType="INTEGER" />
+    <result column="createDate" property="createDate" jdbcType="DATE" />
+    <result column="inviteName" property="inviteName" jdbcType="VARCHAR" />
+  </resultMap>
+   <resultMap id="BaseResultMap2" type="com.hw.entity.Customer2" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="education" property="education" jdbcType="VARCHAR" />
+    <result column="phoneNo" property="phoneNo" jdbcType="VARCHAR" />
+    <result column="qq" property="qq" jdbcType="INTEGER" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="customStatus" property="customStatus" jdbcType="VARCHAR" />
+    <result column="createDate" property="createDate" jdbcType="DATE" />
+    <result column="inviteName" property="inviteName" jdbcType="VARCHAR" />
+  </resultMap>
+  
+ <sql id="Base_Column_List" >
+    id, name, education, phoneNo, qq, email, customStatus, createDate, inviteName
+  </sql>
+  <update id="updateCustomStatus" parameterType="com.hw.entity.Customer">
+  	UPDATE crm_customer SET customStatus=#{customStatus} WHERE id=#{customId}
+  </update>
+  <select id="queryAll" resultMap="BaseResultMap" parameterType="com.hw.entity.Customer">
+  	SELECT <include refid="Base_Column_List"></include> from crm_customer
+  </select>
+  <select id="queryByName" resultMap="BaseResultMap" parameterType="com.hw.entity.Customer">
+  	SELECT <include refid="Base_Column_List"></include> from crm_customer WHERE name like #{name}
+  </select>
+  <select id="queryByCustomStatus" resultMap="BaseResultMap" parameterType="com.hw.entity.Customer">
+  	SELECT <include refid="Base_Column_List"></include> from crm_customer WHERE customStatus=#{customStatus}
+  </select>
+  <select id="queryByInviteName" resultMap="BaseResultMap" parameterType="com.hw.entity.Customer">
+  	SELECT <include refid="Base_Column_List"></include> from crm_customer WHERE inviteName like #{inviteName}
+  </select>
+  <select id="queryByPhoneNo" resultMap="BaseResultMap" parameterType="com.hw.entity.Customer">
+  	SELECT <include refid="Base_Column_List"></include> from crm_customer WHERE phoneNo like #{phoneNo}
+  </select>
+  <select id="queryByCreateDate" resultMap="BaseResultMap" parameterType="com.hw.entity.Customer">
+  	SELECT <include refid="Base_Column_List"></include> from crm_customer WHERE createDate=#{createDate}
+  </select>
+  
+  <insert id="insertCustom" parameterType="com.hw.entity.Customer">
+  	INSERT INTO crm_customer(name, education, phoneNo, qq, email, customStatus, createDate, inviteName)
+  	VALUES(#{name}, #{education}, #{phoneNo}, #{qq}, #{email}, #{customStatus}, #{createDate}, #{inviteName})
+  </insert>
+  <update id="updateCustom" parameterType="com.hw.entity.Customer">
+  	UPDATE crm_customer SET name=#{name}, education=#{education}, phoneNo=#{phoneNo}, qq=#{qq}, email=#{email}, customStatus=#{customStatus} 
+  	WHERE id=#{id}
+  </update>
+  <select id="exportCustomByWeek" resultMap="BaseResultMap2" parameterType="com.hw.entity.Customer">
+  	SELECT id, name, education, phoneNo, qq, email, ( case customStatus
+		when 0
+		then '新增未上门'
+		when 1 then '新增已上门'
+		when 2 then '销售跟进中'
+		when 3 then '咨询跟进中'
+		when 4 then '死单'
+		when 5 then '已报名'
+		else '错误'
+		end) as
+		customStatus, createDate, inviteName from crm_customer where 
+  	month(createDate) = month(curdate()) and week(createDate) = week(curdate());
+  </select>
+  <select id="exportCustomByMonth" resultMap="BaseResultMap2" parameterType="com.hw.entity.Customer2">
+  	SELECT id, name, education, phoneNo, qq, email, ( case customStatus
+		when 0
+		then '新增未上门'
+		when 1 then '新增已上门'
+		when 2 then '销售跟进中'
+		when 3 then '咨询跟进中'
+		when 4 then '死单'
+		when 5 then '已报名'
+		else '错误'
+		end) as
+		customStatus, createDate, inviteName from crm_customer where
+  	DATE_FORMAT( createDate, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' );
+  </select>
+  <select id="queryCustomType1">
+  		SELECT <include refid="Base_Column_List"></include>
+  </select>
+</mapper>
